@@ -9,7 +9,9 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.sql.init.SqlDataSourceScriptDatabaseInitializer;
 import org.springframework.boot.autoconfigure.sql.init.SqlInitializationProperties;
+import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.context.annotation.Bean;
+import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 
 /**
  * The entry point of the Spring Boot application.
@@ -21,6 +23,8 @@ import org.springframework.context.annotation.Bean;
 @SpringBootApplication
 @Theme(value = "feign-crud-tin")
 @Push
+@EnableFeignClients
+@EnableJpaAuditing
 public class Application implements AppShellConfigurator {
 
     public static void main(String[] args) {
