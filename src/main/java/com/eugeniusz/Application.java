@@ -7,6 +7,7 @@ import com.vaadin.flow.theme.Theme;
 import javax.sql.DataSource;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.amqp.RabbitAutoConfiguration;
 import org.springframework.boot.autoconfigure.sql.init.SqlDataSourceScriptDatabaseInitializer;
 import org.springframework.boot.autoconfigure.sql.init.SqlInitializationProperties;
 import org.springframework.cloud.openfeign.EnableFeignClients;
@@ -20,11 +21,12 @@ import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
  * and some desktop browsers.
  *
  */
-@SpringBootApplication
+
 @Theme(value = "feign-crud-tin")
 @Push
 @EnableFeignClients
 @EnableJpaAuditing
+@SpringBootApplication(exclude = {RabbitAutoConfiguration.class})
 public class Application implements AppShellConfigurator {
 
     public static void main(String[] args) {
