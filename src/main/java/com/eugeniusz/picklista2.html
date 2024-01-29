@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Code Syntax Highlighter and Checker</title>
+    <!-- Prism CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/9000.0.1/themes/prism.css" rel="stylesheet" />
+</head>
+<body>
+<!-- Dropdown for language selection -->
+<select id="language-select">
+    <option value="java">Java</option>
+    <option value="python3">Python3</option>
+    <option value="scala">Scala_2.13</option>
+    <!-- Add more options as needed -->
+</select>
+
+<textarea id="code-input" placeholder="Wpisz swój kod tutaj..."></textarea>
+<button id="check-code">Sprawdź Kod</button>
+<div id="result"></div>
+
+<!-- Prism JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/9000.0.1/prism.js"></script>
+
+<script>
+    document.getElementById('check-code').addEventListener('click', function() {
+        let code = document.getElementById('code-input').value;
+        let language = document.getElementById('language-select').value; // Get the selected language
+
+        let apiUrl, method, headers, body;
+        const apiKey = 'b8251e0cb7mshc30d4392580738bp13a8f1jsnd86a6b0e688b'
+        const defaultVersion = 'latest'
+        const javaHeaders = {
+            'Content-Type': 'application/json',
+            'X-RapidAPI-Key': apiKey,
+            'X-RapidAPI-Host': 'java-code-compiler.p.rapidapi.com'
+        }
+        const pythonHeaders = {
+            'content-type': 'application/json',
+            'X-RapidAPI-Key': apiKey,
+            'X-RapidAPI-Host': 'python-3-code-compiler.p.rapidapi.com'
+        }
+        const scalaHeaders = {
+            'Content-Type': 'application/json',
+            'X-RapidAPI-Key': apiKey,
+            'X-RapidAPI-Host': 'scala-code-compiler.p.rapidapi.com'
+        };
+        // Depending on the language, set up the API request
+        switch (language) {
+            case 'java':
+                apiUrl = 'https://java-code-compiler.p.rapidapi.com/';
+                method = 'POST';
+                headers = javaHeaders;
+                body = JSON.stringify({code: code, version: defaultVersion});
+                break;
+
+            case 'python3':
+                apiUrl = 'https://python-3-code-compiler.p.rapidapi.com/';
+                method = 'POST';
+                headers = pythonHeaders;
+                body = JSON.stringify({code: code, version: defaultVersion});
+                break;
+
+            case 'scala':
+                apiUrl = 'https://scala-code-compiler.p.rapidapi.com/';
+                method = 'POST';
+                headers = scalaHeaders;
+                body = JSON.stringify({code: code, version: defaultVersion});
+                break;
+        }
+
+        // Send the request to the API
+        fetch(apiUrl, {
+            method: method,
+            headers: headers,
+            body: body
+        })
+            .then(response => response.json())
+            .then(data => {
+                let outputElement = document.getElementById('result');
+                if (data.success) {
+                    outputElement.innerHTML = `<pre><code class="language-${language}">${data.output}</code></pre>`;
+                    Prism.highlightAll(); // Re-highlight with Prism.js
+                } else {
+                    outputElement.innerHTML = `<pre style="color: red;">${data.errorMessage}</pre>`;
+                }
+            })
+            .catch(error => {
+                document.getElementById('result').innerHTML = `<pre style="color: red;">Error: ${error}</pre>`;
+            });
+    // Use Prism.js for syntax highlighting
+    Prism.highlightAll()});
+</script>
+</body>
+</html>

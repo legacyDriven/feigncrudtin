@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Code Syntax Highlighter and Checker</title>
+    <!-- Prism CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/9000.0.1/themes/prism.css" rel="stylesheet" />
+</head>
+<body>
+<!-- Dropdown for language selection -->
+<select id="language-select">
+    <option value="java">Java</option>
+    <option value="python">Python</option>
+    <option value="javascript">JavaScript</option>
+    <!-- Add more options as needed -->
+</select>
+
+<textarea id="code-input" placeholder="Wpisz swój kod tutaj..."></textarea>
+<button id="check-code">Sprawdź Kod</button>
+<div id="result"></div>
+
+<!-- Prism JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/9000.0.1/prism.js"></script>
+
+<script>
+    document.getElementById('check-code').addEventListener('click', function() {
+        var code = document.getElementById('code-input').value;
+        var language = document.getElementById('language-select').value; // Get the selected language
+        // Modify the fetch request to include the language
+        fetch('https://java-code-compiler.p.rapidapi.com/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-RapidAPI-Key': 'b8251e0cb7mshc30d4392580738bp13a8f1jsnd86a6b0e688b',
+                'X-RapidAPI-Host': 'java-code-compiler.p.rapidapi.com'
+            },
+            body: JSON.stringify({
+                code: code,
+                language: language, // Add the language parameter
+                version: 'latest'
+            })
+        })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('result').textContent = JSON.stringify(data, null, 2);
+            })
+            .catch(error => console.error('Error:', error));
+    });
+
+    // Use Prism.js for syntax highlighting
+    Prism.highlightAll();
+</script>
+</body>
+</html>

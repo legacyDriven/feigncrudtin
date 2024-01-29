@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Code Syntax Highlighter and Checker</title>
+    <!-- Prism CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/9000.0.1/themes/prism.css" rel="stylesheet" />
+</head>
+<body>
+    <textarea id="code-input" placeholder="Wpisz swój kod tutaj..."></textarea>
+    <button id="check-code">Sprawdź Kod</button>
+    <div id="result"></div>
+
+    <!-- Prism JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/9000.0.1/prism.js"></script>
+    <!-- Your existing script -->
+    <script>
+        // Your JavaScript code here
+    </script>
+</body>
+</html>
+
+<script>
+    document.getElementById('check-code').addEventListener('click', function() {
+        var code = document.getElementById('code-input').value;
+        fetch('URL_API', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-RapidAPI-Key': 'YOUR_API_KEY',
+                'X-RapidAPI-Host': 'java-code-compiler.p.rapidapi.com'
+            },
+            body: JSON.stringify({ code: code, version: 'latest' }) // Add the version here
+        })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('result').textContent = JSON.stringify(data, null, 2);
+            })
+            .catch(error => console.error('Error:', error));
+    });
+
+    Prism.highlightAll();
+</script>
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Code Syntax Highlighter and Checker</title>
+<link href="path_to_prism.css" rel="stylesheet" /> <!-- Link do CSS Prism.js -->
+</head>
+<body>
+<textarea id="code-input" placeholder="Wpisz swój kod tutaj..."></textarea>
+<button id="check-code">Sprawdź Kod</button>
+<div id="result"></div>
+
+    <script src="path_to_prism.js"></script> <!-- Link do JS Prism.js -->
+<script>
+        document.getElementById('check-code').addEventListener('click', function() {
+            var code = document.getElementById('code-input').value;
+            // Tutaj dodaj kod do wysłania żądania do API
+            // Przykład:
+            fetch('URL_API', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ code: code })
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('result').textContent = JSON.stringify(data, null, 2);
+            })
+            .catch(error => console.error('Error:', error));
+        });
+
+        // Użyj Prism.js do podświetlenia składni
+        Prism.highlightAll();
+</script>
+</body>
+</html>
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- ... -->
+    <title>Code Syntax Highlighter and Checker</title>
+    <!-- ... -->
+</head>
+<body>
+<select id="language-select">
+    <option value="java">Java</option>
+    <option value="python3">Python3</option>
+    <option value="scala">Scala</option>
+</select>
+<!-- ... -->
+
+<script>
+    document.getElementById('check-code').addEventListener('click', function() {
+        var code = document.getElementById('code-input').value;
+        var language = document.getElementById('language-select').value;
+
+        var apiUrl, method, headers, body;
+
+        // Depending on the language, set up the API request
+        switch(language) {
+            case 'java':
+                apiUrl = 'https://java-code-compiler.p.rapidapi.com/';
+                method = 'POST';
+                headers = {
+                    'Content-Type': 'application/json',
+                    'X-RapidAPI-Key': 'YOUR_API_KEY',
+                    'X-RapidAPI-Host': 'java-code-compiler.p.rapidapi.com'
+                };
+                body = JSON.stringify({ code: code, version: 'latest' });
+                break;
+            case 'python3':
+                // Set up Python3 API request details
+                break;
+            case 'scala':
+                apiUrl = 'https://scala-code-compiler.p.rapidapi.com/versions/';
+                method = 'GET';
+                headers = {
+                    'X-RapidAPI-Key': 'YOUR_API_KEY',
+                    'X-RapidAPI-Host': 'scala-code-compiler.p.rapidapi.com'
+                };
+                body = null; // For GET requests, there might be no body
+                break;
+            // Add more cases as needed
+        }
+
+        // Perform the API request
+        fetch(apiUrl, {
+            method: method,
+            headers: headers,
+            body: body
+        })
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById('result').textContent = JSON.stringify(data, null, 2);
+        })
+        .catch(error => console.error('Error:', error));
+    });
+
+    // ... Prism.js code
+</script>
+</body>
+</html>
+
+!-- ... Your existing HTML ... -->
+
+<div id="result" style="background-color: #f5f5f5; padding: 10px; margin-top: 10px;">
+    <!-- The result of the compilation will be displayed here -->
+</div>
+
+<script>
+    // ... Your existing JavaScript ...
+
+    // Inside your fetch call, after receiving the response:
+    .then(data => {
+        var outputElement = document.getElementById('result');
+        if (data.success) {
+            outputElement.innerHTML = `<pre><code class="language-${language}">${data.output}</code></pre>`;
+            Prism.highlightAll(); // Re-highlight with Prism.js
+        } else {
+            outputElement.innerHTML = `<pre style="color: red;">${data.errorMessage}</pre>`;
+        }
+    })
+    .catch(error => {
+        document.getElementById('result').innerHTML = `<pre style="color: red;">Error: ${error}</pre>`;
+    });
+
+    // ... Rest of your JavaScript ...
+</script>
+
+
+

@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Code Syntax Highlighter and Checker</title>
+    <link href="path_to_prism.css" rel="stylesheet" /> <!-- Link do CSS Prism.js -->
+</head>
+<body>
+<textarea id="code-input" placeholder="Wpisz swój kod tutaj..."></textarea>
+<button id="check-code">Sprawdź Kod</button>
+<div id="result"></div>
+
+<script src="path_to_prism.js"></script> <!-- Link do JS Prism.js -->
+<script>
+    document.getElementById('check-code').addEventListener('click', function() {
+        var code = document.getElementById('code-input').value;
+        // Tutaj dodaj kod do wysłania żądania do API
+        // Przykład:
+        fetch('URL_API', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ code: code })
+        })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('result').textContent = JSON.stringify(data, null, 2);
+            })
+            .catch(error => console.error('Error:', error));
+    });
+
+    // Użyj Prism.js do podświetlenia składni
+    Prism.highlightAll();
+</script>
+</body>
+</html>
+
+
+
+User
+How to Use JDoodle's REST API
+To integrate code compilation and execution into your applications.
+
+JDoodle's REST API provides a straightforward and powerful way to integrate code compilation and execution into your applications. This guide will walk you through the steps to effectively use JDoodle's REST API.
+
+Prerequisites
+Before you start using JDoodle's REST API, ensure you have the following:
+
+JDoodle Account: Sign up on JDoodle to get your Client ID and Client Secret.
+Programming Language Knowledge: Understand the basics of the programming language you intend to use with the API.
+API Key: Obtain your authentication token by calling the https://api.jdoodle.com/v1/auth-token endpoint with your Client ID and Client Secret.
+Making a REST API Call
+To execute code using JDoodle's REST API, follow these steps:
+
+Step 1: Obtain Authentication Token
+Make a POST request to the authentication endpoint to get an authentication token. This token is essential for all subsequent API calls.
+
+import requests
+
+Replace with your own Client ID and Client Secret
+CLIENT_ID = "your_client_id_here"
+
+CLIENT_SECRET = "your_client_secret_here"
+
+Get authentication token
+auth_data = {'clientId': CLIENT_ID, 'clientSecret': CLIENT_SECRET}
+
+auth_response = requests.post("https://api.jdoodle.com/v1/auth-token", json=auth_data)
+
+token = auth_response.json().get('token')
+
+Step 2: Prepare Execution Data
+Construct a dictionary with the necessary parameters for code execution. This includes the script, language, versionIndex, and the authentication token obtained in the previous step.
+
+execution_data = {
+
+"script": "print('Hello, World!')",
+
+"language": "python3",
+
+"versionIndex": "0",
+
+"token": token
+
+}
+
+chce obsluzyc to api z apki springboot za pomoca feign clienta, mam juz dzialajaca aplikacje, ale interesuje mnie pierwszy krok, czyli uzyskanie tokenu
+ChatGPT
+Aby zintegrować JDoodle's REST API z aplikacją Spring Boot przy użyciu klienta Feign, musisz najpierw skonfigurować klienta Feign, aby wykonać żądanie POST do endpointu uwierzytelniania JDoodle i uzyskać token. Oto kroki, które możesz wykonać:
+
+Dodaj Zależności do Twojego Projektu Spring Boot:
+Upewnij się, że w pliku pom.xml Twojego projektu Spring Boot zawarte są zależności dla Spring Cloud OpenFeign. Oto przykładowa zależność:
+
+xml
+Copy code
+<dependency>
+    <groupId>org.springframework.cloud</groupId>
+    <artifactId>spring-cloud-starter-openfeign</artifactId>
+    <version>Twoja_wersja</version>
+</dependency>
+Włącz Klienta Feign:
+Dodaj adnotację @EnableFeignClients do głównej klasy aplikacji Spring Boot.
+
+Utwórz Interfejs Klienta Feign:
+Stwórz interfejs Feign, który będzie definiował metodę do wykonywania żądania POST do endpointu uwierzytelniającego JDoodle.
+
+java
+Copy code
+@FeignClient(name = "jdoodleClient", url = "https://api.jdoodle.com")
+public interface JdoodleClient {
+
+@PostMapping("/v1/auth-token")
+AuthResponse getAuthToken(@RequestBody AuthRequest authRequest);
+}
+W tym przypadku, AuthRequest i AuthResponse to klasy, które reprezentują odpowiednio żądanie i odpowiedź uwierzytelniania.
+
+Definicja Klas Żądania i Odpowiedzi:
+Utwórz klasy AuthRequest i AuthResponse z odpowiednimi polami (clientId, clientSecret dla żądania; token dla odpowiedzi).
+
+java
+Copy code
+public class AuthRequest {
+private String clientId;
+private String clientSecret;
+// getters and setters
+}
+
+public class AuthResponse {
+private String token;
+// getters and setters
+}
+Użyj Klienta Feign w Twojej Aplikacji:
+Wstrzyknij utworzony wcześniej klient Feign do Twojej usługi lub kontrolera i użyj go do wykonania żądania uwierzytelniającego.
+
+java
+Copy code
+@Autowired
+private JdoodleClient jdoodleClient;
+
+public String getAuthToken() {
+AuthRequest authRequest = new AuthRequest();
+authRequest.setClientId("your_client_id_here");
+authRequest.setClientSecret("your_client_secret_here");
+
+AuthResponse authResponse = jdoodleClient.getAuthToken(authRequest);
+return authResponse.getToken();
+}
+Obsługa Błędów:
+Pamiętaj o obsłudze możliwych błędów, takich jak problemy z połączeniem sieciowym lub błędy odpowiedzi API.
+
+Po zaimplementowaniu powyższych kroków, Twoja aplikacja Spring Boot powinna być w stanie uzyskać token uwierzytelniający od API JDoodle przy użyciu klienta Feign.
+
+User
+wczesniej jeszcze radziles mi skonfigurowanie jakiegos interceptora dla feigna
+ChatGPT
+Zgadza się, konfiguracja interceptora dla klienta Feign w Spring Boot jest dobrym pomysłem, zwłaszcza jeśli chcesz, aby pewne zachowania lub informacje były automatycznie stosowane do wszystkich wywołań wykonywanych przez tego klienta. Interceptor może być używany do różnych celów, na przykład do dodawania nagłówków uwierzytelniających, logowania, obsługi błędów itp.
+
+Oto jak możesz skonfigurować interceptor dla klienta Feign w Twojej aplikacji Spring Boot:
+
+Utwórz Klasę Interceptor:
+Najpierw utwórz klasę, która implementuje interfejs RequestInterceptor z biblioteki Feign. W metodzie apply tej klasy możesz dodać logikę, która zostanie wykonana na każdym żądaniu.
+
+java
+Copy code
+import feign.RequestInterceptor;
+import feign.RequestTemplate;
+
+public class CustomFeignInterceptor implements RequestInterceptor {
+
+@Override
+public void apply(RequestTemplate template) {
+// Tutaj możesz dodać nagłówki, logikę itp.
+template.header("Key", "Value"); // Przykład dodawania nagłówka
+}
+}
+Zarejestruj Interceptor w Konfiguracji Feign:
+Następnie musisz zarejestrować swój interceptor w konfiguracji Feign. Możesz to zrobić, tworząc konfigurację Feign w swojej aplikacji Spring Boot.
+
+java
+Copy code
+import org.springframework.context.annotation.Bean;
+import feign.codec.ErrorDecoder;
+
+@Configuration
+public class FeignClientConfiguration {
+
+@Bean
+public RequestInterceptor requestInterceptor() {
+return new CustomFeignInterceptor();
+}
+}
+Przypisz Konfigurację do Klienta Feign:
+Teraz musisz powiązać tę konfigurację z klientem Feign, który chcesz używać. Możesz to zrobić, dodając atrybut configuration do adnotacji @FeignClient.
+
+java
+Copy code
+@FeignClient(name = "jdoodleClient", url = "https://api.jdoodle.com", configuration = FeignClientConfiguration.class)
+public interface JdoodleClient {
+// definicje metod
+}
+Po skonfigurowaniu tego, interceptor CustomFeignInterceptor zostanie zastosowany do każdego żądania wysyłanego przez klienta Feign JdoodleClient. Możesz dostosować logikę w apply metody do swoich potrzeb, na przykład do dodawania tokenów uwierzytelniających, logowania żądań i odpowiedzi, itp.
+
+User
+w jakich pakietach zazwyczaj umieszcza sie te interceptory
+ChatGPT
+Umieszczanie interceptorów Feign w odpowiednim pakiecie w projekcie Spring Boot to kwestia organizacji kodu i najlepszych praktyk. Generalnie, chcesz, aby struktura Twojego projektu była przejrzysta i logiczna, co ułatwia zarówno rozwój, jak i późniejsze utrzymanie kodu. Oto kilka sugestii, gdzie możesz umieścić interceptory:
+
+Pakiet Dedykowany dla Klientów Feign:
+Jeśli Twoja aplikacja używa wielu klientów Feign, możesz utworzyć dedykowany pakiet dla nich. Interceptor można umieścić w tym samym pakiecie co klienci Feign lub w podpakiecie. Na przykład:
+
+markdown
+Copy code
+- com.twojaaplikacja
+- client
+- feign
+- JdoodleClient.java
+- Interceptor.java
+Pakiet Konfiguracyjny:
+Interceptor Feign może być również traktowany jako część konfiguracji aplikacji. W takim przypadku, umieszczenie go w pakiecie konfiguracyjnym jest dobrym pomysłem. Na przykład:
+
+markdown
+Copy code
+- com.twojaaplikacja
+- config
+- FeignConfig.java
+- FeignInterceptor.java
+Pakiet Util albo Common:
+Jeśli interceptor ma zastosowanie ogólne (np. logowanie, dodawanie standardowych nagłówków), może pasować do pakietu util lub common, który zawiera komponenty używane przez różne części aplikacji. Na przykład:
+
+markdown
+Copy code
+- com.twojaaplikacja
+- util
+- CustomFeignInterceptor.java
+Pakiet Specyficzny dla Interceptorów:
+W przypadku, gdy masz wiele różnych interceptorów (nie tylko dla Feign), możesz utworzyć specyficzny pakiet dla wszystkich interceptorów. Na przykład:
+
+markdown
+Copy code
+- com.twojaaplikacja
+- interceptor
+- FeignInterceptor.java
+- InnyInterceptor.java
+Wybór odpowiedniego pakietu zależy od ogólnej struktury Twojej aplikacji oraz od tego, jak chcesz organizować swoje komponenty. Ważne jest, aby była to decyzja świadoma i spójna z resztą Twojej architektury aplikacji.
+
+User
+CLIENT_ID = "your_client_id_here"
+
+CLIENT_SECRET = "your_client_secret_here"
+w tym requescie to client_id to jest key? i druga rzecz czy to nie powinno byc camel casem?
+ChatGPT
+W kontekście żądania REST API, CLIENT_ID i CLIENT_SECRET są nazwami kluczy, które są używane w treści żądania. Są one formą identyfikatora klienta i sekretu klienta, które są wymagane do uwierzytelnienia i uzyskania dostępu do API. W językach programowania takich jak Java, często używa się konwencji nazewnictwa camelCase, ale w kontekście kluczy JSON używanych w REST API, konwencja nazewnictwa może się różnić w zależności od API.
+
+W przypadku JDoodle's REST API, klucze, które należy użyć w żądaniu autoryzacyjnym, powinny być dokładnie zgodne z tym, co API oczekuje. Jeśli dokumentacja JDoodle określa, że klucze powinny być clientId i clientSecret, to powinieneś użyć tych nazw dokładnie w tej formie.
+
+Jeśli jednak dokumentacja nie określa konkretnego stylu nazewnictwa, a Ty korzystasz z języka, który preferuje camelCase (jak Java), możesz użyć camelCase dla spójności z konwencjami Twojego kodu. Ważne jest, aby klucze w żądaniu JSON były zgodne z tym, czego oczekuje serwer API.
+
+Podsumowując, w Twoim przykładzie:
+
+Jeśli dokumentacja JDoodle's API określa clientId i clientSecret jako klucze, to powinieneś użyć tych nazw.
+Jeśli dokumentacja nie określa konkretnego stylu, a Ty używasz języka preferującego camelCase, możesz użyć clientId i clientSecret dla spójności.
+User
+https://www.jdoodle.com/docs/jdoodle-apis/rest-api
+
+tu masz jasno opisane, w takim razie nazwy pol obiektu request powinny byc uppercase?
+ChatGPT
+The JDoodle REST API documentation that you referred to provides specific guidelines on how to structure the request, including the names and format of the fields required for authentication and code execution. It's important to follow these guidelines closely to ensure successful communication with the API. In your case, you should use the exact field names as specified in the documentation. If the documentation specifies uppercase (like CLIENT_ID and CLIENT_SECRET), then you should use uppercase in your request object to match their requirements. For the most accurate implementation, it's always best to refer directly to the official documentation. You can check the details at JDoodle's REST API documentation.
+
+User
+dobrze to popraw implementacje ktora stworzyles
+ChatGPT
+Based on the JDoodle REST API documentation, it's important to use the exact field names as they are specified. If the documentation indicates that the fields should be in uppercase, such as CLIENT_ID and CLIENT_SECRET, then your implementation should reflect this.
+
+Here's the corrected implementation for the Feign client setup in Spring Boot, using uppercase field names for the request object:
+
+java
+Copy code
+// JdoodleClient.java
+@FeignClient(name = "jdoodleClient", url = "https://api.jdoodle.com")
+public interface JdoodleClient {
+
+@PostMapping("/v1/auth-token")
+AuthResponse getAuthToken(@RequestBody AuthRequest authRequest);
+}
+
+// AuthRequest.java
+public class AuthRequest {
+private String CLIENT_ID;
+private String CLIENT_SECRET;
+// getters and setters
+}
+
+// AuthResponse.java
+public class AuthResponse {
+private String token;
+// getters and setters
+}
+
+// Usage in a service or controller
+@Autowired
+private JdoodleClient jdoodleClient;
+
+public String getAuthToken() {
+AuthRequest authRequest = new AuthRequest();
+authRequest.setCLIENT_ID("your_client_id_here");
+authRequest.setCLIENT_SECRET("your_client_secret_here");
+
+AuthResponse authResponse = jdoodleClient.getAuthToken(authRequest);
+return authResponse.getToken();
+}
+In this revised implementation, AuthRequest now uses CLIENT_ID and CLIENT_SECRET as field names, consistent with the JDoodle API documentation. Make sure to adapt this example to your specific requirements and the actual structure of your Spring Boot application.
+
+User
+How to Use JDoodle's REST API
+To integrate code compilation and execution into your applications.
+
+JDoodle's REST API provides a straightforward and powerful way to integrate code compilation and execution into your applications. This guide will walk you through the steps to effectively use JDoodle's REST API.
+
+Prerequisites
+Before you start using JDoodle's REST API, ensure you have the following:
+
+JDoodle Account: Sign up on JDoodle to get your Client ID and Client Secret.
+Programming Language Knowledge: Understand the basics of the programming language you intend to use with the API.
+API Key: Obtain your authentication token by calling the https://api.jdoodle.com/v1/auth-token endpoint with your Client ID and Client Secret.
+Making a REST API Call
+To execute code using JDoodle's REST API, follow these steps:
+
+Step 1: Obtain Authentication Token
+Make a POST request to the authentication endpoint to get an authentication token. This token is essential for all subsequent API calls.
+
+import requests
+
+Replace with your own Client ID and Client Secret
+CLIENT_ID = "your_client_id_here"
+
+CLIENT_SECRET = "your_client_secret_here"
+
+Get authentication token
+auth_data = {'clientId': CLIENT_ID, 'clientSecret': CLIENT_SECRET}
+
+auth_response = requests.post("https://api.jdoodle.com/v1/auth-token", json=auth_data)
+
+token = auth_response.json().get('token')
+
+Step 2: Prepare Execution Data
+Construct a dictionary with the necessary parameters for code execution. This includes the script, language, versionIndex, and the authentication token obtained in the previous step.
+
+execution_data = {
+
+"script": "print('Hello, World!')",
+
+"language": "python3",
+
+"versionIndex": "0",
+
+"token": token
+
+}
+
+zrob mi curla ktory uderzy po token, zostaw puste miejsce na api key i secret
+ChatGPT
+Sure, here's a curl command template to obtain an authentication token from JDoodle's REST API. Remember to replace your_client_id_here and your_client_secret_here with your actual Client ID and Client Secret.
+
+bash
+Copy code
+curl -X POST https://api.jdoodle.com/v1/auth-token \
+-H "Content-Type: application/json" \
+-d '{"clientId": "your_client_id_here", "clientSecret": "your_client_secret_here"}'
+This command sends a POST request to the JDoodle authentication endpoint with your Client ID and Client Secret in the request body. The response will contain the authentication token that you'll need for subsequent API requests.
+
+User
+tego curla moge odpalic w cmd?
+ChatGPT
+Tak, możesz użyć tego polecenia curl w Command Prompt (CMD) na systemie Windows. Upewnij się, że masz zainstalowaną wersję curl obsługującą HTTPS. W większości nowoczesnych systemów Windows, curl jest dostępny domyślnie. Po prostu wklej polecenie w CMD i zastąp your_client_id_here oraz your_client_secret_here odpowiednimi wartościami z Twojego konta JDoodle. Odpowiedź, którą otrzymasz, powinna zawierać token uwierzytelniający, który będziesz potrzebować do dalszych zapytań do API JDoodle.
+
+User
+Microsoft Windows [Version 10.0.22631.3007]
+(c) Microsoft Corporation. Wszelkie prawa zastrzeżone.
+
+C:\Users\Eugen>curl -X POST https://api.jdoodle.com/v1/auth-token \
+{"error":"Invalid Request","statusCode":400}curl: (3) URL rejected: Bad hostname
+
+C:\Users\Eugen>        -H "Content-Type: application/json" \
+'-H' is not recognized as an internal or external command,
+operable program or batch file.
+
+C:\Users\Eugen>        -d '{"clientId": "159caf339d4c7282b8322c76e3cce4cd", "clientSecret": "79babfb07549243b38d1e8e7c1ddb93dcacda8f3a7e50062a0e301848025cd77"}'
+ChatGPT
+Wygląda na to, że wystąpił problem z formatowaniem polecenia curl w Command Prompt na Windows. W CMD, różne linie polecenia curl muszą być połączone bez znaków \ używanych do łamania linii. Oto jak powinno wyglądać poprawione polecenie curl:
+
+cmd
+Copy code
+curl -X POST https://api.jdoodle.com/v1/auth-token -H "Content-Type: application/json" -d "{\"clientId\": \"your_client_id_here\", \"clientSecret\": \"your_client_secret_here\"}"
+Upewnij się, że zastąpiłeś your_client_id_here i your_client_secret_here odpowiednimi wartościami swojego Client ID i Client Secret. Polecenie to powinno być wykonane jako jedna linia w CMD.
+
+User
+C:\Users\Eugen>curl -X POST https://api.jdoodle.com/v1/auth-token -H "Content-Type: application/json" -d "{\"clientId\": \"159caf339d4c7282b8322c76e3cce4cd\", \"clientSecret\": \"79babfb07549243b38d1e8e7c1ddb93dcacda8f3a7e50062a0e301848025cd77\"}"
+eyJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJKRE9PRExFIiwic3ViIjoiV1MtQVBJLVRPS0VOIiwiY2xpZW50LWlkIjoiMTU5Y2FmMzM5ZDRjNzI4MmI4MzIyYzc2ZTNjY2U0Y2QiLCJpYXQiOjE3MDY1MjY0MDQsImV4cCI6MTcwNjUyNjU4NH0.v24wz5Xpu5NGrGmiBFz2kB_SKemDj6kB3JfWlErXtvg
+C:\Users\Eugen>
+ChatGPT
+Wygląda na to, że polecenie curl zostało wykonane poprawnie i otrzymałeś token uwierzytelniający od JDoodle's REST API. Możesz teraz użyć tego tokenu w dalszych żądaniach do API, aby wykonywać operacje, takie jak kompilacja i wykonanie kodu. Pamiętaj, aby bezpiecznie przechowywać token i nie udostępniać go publicznie, ponieważ daje on dostęp do Twojego konta na JDoodle.
+
+User
+to czemu dostaje 403 jesli probuje strzelic tam z feignclienta?
+ChatGPT
+Otrzymywanie błędu 403 (Forbidden) podczas wykonywania żądań z FeignClienta do JDoodle's REST API może być spowodowane kilkoma czynnikami. Oto kilka możliwych przyczyn i sugestii, jak je rozwiązać:
+
+Nieprawidłowy Token Uwierzytelniający: Upewnij się, że używasz poprawnego tokenu uwierzytelniającego, który uzyskałeś z polecenia curl. Token musi być przekazywany z każdym żądaniem do API.
+
+Błędna Konfiguracja Feign Clienta: Sprawdź, czy Twój Feign Client jest poprawnie skonfigurowany, w szczególności czy dodajesz token uwierzytelniający jako nagłówek żądania.
+
+Uprawnienia Konta JDoodle: Możliwe, że Twoje konto JDoodle nie ma odpowiednich uprawnień do wykonywania pewnych działań. Sprawdź, czy Twój plan subskrypcji i ustawienia konta na JDoodle pozwalają na wykonywanie żądań, których próbujesz dokonać.
+
+Błędy w Danych Żądania: Upewnij się, że wszystkie inne dane wysyłane w żądaniu (takie jak skrypt, język, wersja) są poprawne i zgodne z wymaganiami API.
+
+Ograniczenia Sieciowe lub Firewall: Sprawdź, czy nie ma żadnych ograniczeń sieciowych lub ustawień firewalla, które mogłyby blokować żądania wychodzące z Twojej aplikacji.
+
+Jeśli nadal napotykasz problemy, może być pomocne włączenie szczegółowego logowania dla klienta Feign, aby zobaczyć dokładne szczegóły żądania i odpowiedzi, co może ułatwić diagnozowanie problemu.
+
+User
+mowie o sama operacje pobrania tokena, tam dostaje 403
+ChatGPT
+Otrzymywanie błędu 403 (Forbidden) podczas próby uzyskania tokenu uwierzytelniającego za pomocą FeignClienta wskazuje, że serwer odmawia dostępu do zasobu. Może to być spowodowane kilkoma czynnikami:
+
+Błędne Dane Uwierzytelniające: Upewnij się, że clientId i clientSecret są poprawnie przekazywane i są dokładnie takie same, jak te użyte w pomyślnym żądaniu curl.
+
+Nagłówki Żądania: Sprawdź, czy nagłówki żądania są prawidłowo ustawione. Dla żądania autoryzacyjnego, powinieneś mieć nagłówek Content-Type ustawiony na application/json.
+
+Konfiguracja FeignClienta: Upewnij się, że konfiguracja FeignClienta jest prawidłowa. To obejmuje zarówno konfigurację samego klienta Feign, jak i wszelkie interceptory, które mogą modyfikować żądanie.
+
+Ograniczenia z Strony Serwera JDoodle: Istnieje również możliwość, że JDoodle ma pewne ograniczenia dotyczące tego, skąd mogą pochodzić żądania. Może to być związane z ustawieniami bezpieczeństwa na ich serwerze.
+
+Sprawdź Szczegółowe Logi: Włącz szczegółowe logowanie dla klienta Feign, aby zobaczyć pełne szczegóły żądania i odpowiedzi. Może to pomóc zidentyfikować, gdzie dokładnie występuje problem.
+
+Rozwiązanie problemu z błędem 403 często wymaga dokładnej analizy konfiguracji klienta, żądania i komunikatów z serwera. Sprawdzenie logów i dokładne porównanie żądania Feign z działającym żądaniem curl może być kluczowe w diagnozowaniu i rozwiązaniu problemu.
+
+User
+dobra, pokaz mi jak powinien byc zaimplementowany feignclient zeby to sie powiodlo
+ChatGPT
+Aby zaimplementować klienta Feign w Spring Boot, który będzie komunikował się z JDoodle's REST API do uzyskania tokenu uwierzytelniającego, należy wykonać następujące kroki:
+
+Utwórz Interfejs Feign Client:
+Definiujesz interfejs z adnotacją @FeignClient, określając URL bazowy JDoodle's API. W interfejsie, zdefiniuj metodę do wykonania żądania POST.
+
+java
+Copy code
+@FeignClient(name = "jdoodleClient", url = "https://api.jdoodle.com")
+public interface JdoodleClient {
+@PostMapping("/v1/auth-token")
+AuthResponse authenticate(@RequestBody AuthRequest request);
+}
+Definiuj Klasy dla Żądania i Odpowiedzi:
+Utwórz klasy AuthRequest i AuthResponse, które będą zawierały odpowiednio dane żądania i odpowiedzi. AuthRequest powinien mieć pola clientId i clientSecret.
+
+java
+Copy code
+public class AuthRequest {
+private String clientId;
+private String clientSecret;
+// getters and setters
+}
+
+public class AuthResponse {
+private String token;
+// getters and setters
+}
+Użyj Klienta Feign w Aplikacji:
+Wstrzyknij klienta Feign do swojej usługi lub kontrolera. Użyj metody zdefiniowanej w interfejsie Feign Client do wysłania żądania do API JDoodle i odbierz token.
+
+java
+Copy code
+@Autowired
+private JdoodleClient jdoodleClient;
+
+public String authenticateAndGetToken() {
+AuthRequest request = new AuthRequest();
+request.setClientId("your_client_id");
+request.setClientSecret("your_client_secret");
+
+AuthResponse response = jdoodleClient.authenticate(request);
+return response.getToken();
+}
+Upewnij się, że Twoje clientId i clientSecret są poprawnie ustawione. Ta implementacja powinna umożliwić komunikację z JDoodle's API i uzyskanie tokenu uwierzytelniającego.
+
+User
+jakis interceptor jest potrzebny do tego?
+ChatGPT
+Do uzyskania tokenu uwierzytelniającego z JDoodle's API za pomocą FeignClienta nie jest konieczny żaden specjalny interceptor. Interceptor mógłby być użyteczny, gdybyś chciał dodać dodatkową logikę do wszystkich żądań (na przykład logowanie, dodawanie wspólnych nagłówków itp.), ale w tym przypadku, do samego procesu autoryzacji, nie jest on wymagany.
+
+Zaimplementowany FeignClient, jak opisano wcześniej, powinien być w stanie samodzielnie obsłużyć proces autoryzacji, o ile poprawnie przekażesz clientId i clientSecret w żądaniu. Dopiero po uzyskaniu tokenu, możesz rozważyć użycie interceptora do automatycznego dołączania tego tokenu do kolejnych żądań do API.
+
+User
+dobra, sluchaj, tutaj musze dodac to api, najpierw request o token, potem z tym tokenem request o odpalenie kodu
+ChatGPT
+Rozumiem, chcesz zintegrować dwa żądania API z JDoodle przy użyciu FeignClienta w Spring Boot: najpierw uzyskanie tokenu, a następnie użycie tego tokenu do wykonania kodu. Oto jak możesz to zorganizować:
+
+Uzyskanie Tokenu:
+Jak wcześniej omówiono, użyj FeignClienta do wykonania żądania POST w celu uzyskania tokenu uwierzytelniającego. Będziesz potrzebować clientId i clientSecret do tego żądania.
+
+Wykonanie Kodu:
+Po uzyskaniu tokenu, użyj innego żądania POST za pomocą FeignClienta, aby przesłać kod do wykonania. W tym żądaniu, musisz przekazać token, który uzyskałeś, oraz inne wymagane dane, takie jak skrypt, język programowania i versionIndex.
+
+Interceptor dla Tokena:
+Jeśli planujesz wielokrotnie korzystać z API JDoodle, możesz rozważyć implementację interceptora Feign, który automatycznie dołączy token uwierzytelniający do każdego żądania po jego uzyskaniu.
+
+Obsługa Odpowiedzi:
+Odpowiedzi z API JDoodle powinny być obsłużone odpowiednio, sprawdzając status odpowiedzi i ewentualne błędy.
+
+Pamiętaj, aby dokładnie testować każdą część integracji i obsługiwać potencjalne błędy, które mogą wystąpić podczas komunikacji z API.
+
+User
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Code Syntax Highlighter and Checker</title>
+    <link href="path_to_prism.css" rel="stylesheet" /> <!-- Link do CSS Prism.js -->
+</head>
+<body>
+<textarea id="code-input" placeholder="Wpisz swój kod tutaj..."></textarea>
+<button id="check-code">Sprawdź Kod</button>
+<div id="result"></div>
+
+<script src="path_to_prism.js"></script> <!-- Link do JS Prism.js -->
+<script>
+    document.getElementById('check-code').addEventListener('click', function() {
+        var code = document.getElementById('code-input').value;
+        // Tutaj dodaj kod do wysłania żądania do API
+        // Przykład:
+        fetch('URL_API', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ code: code })
+        })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('result').textContent = JSON.stringify(data, null, 2);
+            })
+            .catch(error => console.error('Error:', error));
+    });
+
+    // Użyj Prism.js do podświetlenia składni
+    Prism.highlightAll();
+</script>
+</body>
+</html>
+
+chodzi o to zeby logike wsadzic do tego htmla
+ChatGPT
+Aby dodać logikę do tego fragmentu HTML, który umożliwia wysyłanie kodu do JDoodle's API i otrzymywanie wyników, należy wykonać kilka kroków:
+
+Zainicjuj Żądanie do API JDoodle: W funkcji obsługi zdarzenia kliknięcia na przycisk, dodaj logikę do tworzenia i wysyłania żądania do API JDoodle. Musisz skonstruować odpowiednie ciało żądania, które będzie zawierało kod do wykonania, język programowania, versionIndex oraz token uwierzytelniający.
+
+Obsłuż Odpowiedź: Po otrzymaniu odpowiedzi z API, przetwórz ją i wyświetl wyniki w elemencie HTML (np. w div o id result).
+
+Ustawienia Prism.js: Jeśli chcesz użyć Prism.js do podświetlania składni w textarea, upewnij się, że masz odpowiednie linki do plików CSS i JS Prism.js oraz że używasz odpowiednich klas CSS w elemencie textarea.
+
+Przykład działającego skryptu (pamiętaj, aby uzupełnić odpowiednie URL-e API, tokeny i inne dane):
+
+html
+Copy code
+<script>
+    document.getElementById('check-code').addEventListener('click', function() {
+        var code = document.getElementById('code-input').value;
+        fetch('URL_API_JDOODLE', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                script: code,
+                language: "python3", // Zmień w zależności od języka
+                versionIndex: "0",
+                clientId: "159caf339d4c7282b8322c76e3cce4cd",
+                clientSecret: "79babfb07549243b38d1e8e7c1ddb93dcacda8f3a7e50062a0e301848025cd77"
+            })
+        })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('result').textContent = JSON.stringify(data, null, 2);
+            })
+            .catch(error => console.error('Error:', error));
+    });
+
+    // Użyj Prism.js do podświetlenia składni
+    Prism.highlightAll();
+</script>

@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Code Syntax Highlighter and Checker</title>
+    <link href="path_to_prism.css" rel="stylesheet" /> <!-- Link do CSS Prism.js -->
+</head>
+<body>
+<textarea id="code-input" placeholder="Wpisz swój kod tutaj..."></textarea>
+<button id="check-code">Sprawdź Kod</button>
+<div id="result"></div>
+
+<script src="path_to_prism.js"></script> <!-- Link do JS Prism.js -->
+<script>
+    document.getElementById('check-code').addEventListener('click', function() {
+        var code = document.getElementById('code-input').value;
+
+        // Krok 1: Uzyskanie tokenu
+        fetch('https://api.jdoodle.com/v1/auth-token', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                clientId: "159caf339d4c7282b8322c76e3cce4cd",
+                clientSecret: "79babfb07549243b38d1e8e7c1ddb93dcacda8f3a7e50062a0e301848025cd77"
+            })
+        })
+            .then(response => response.json())
+            .then(data => {
+                var token = data.token;
+
+                // Krok 2: Wykonanie kodu z użyciem tokenu
+                fetch('https://api.jdoodle.com/v1/execute', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        script: code,
+                        language: "java", // Używamy języka Java
+                        versionIndex: "0", // Wybierz odpowiednią wersję Javy
+                        token: token
+                    })
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        var resultDiv = document.getElementById('result');
+                        resultDiv.textContent = JSON.stringify(data, null, 2);
+                        // Możesz dodać własną logikę do wyświetlania wyników tutaj
+                    })
+                    .catch(error => console.error('Error:', error));
+            })
+            .catch(error => console.error('Error:', error));
+    });
+
+    // Użyj Prism.js do podświetlenia składni
+    Prism.highlightAll();
+</script>
+</body>
+</html>
