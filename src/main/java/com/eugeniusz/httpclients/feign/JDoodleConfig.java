@@ -1,4 +1,4 @@
-package com.eugeniusz.services.feign;
+package com.eugeniusz.httpclients.feign;
 
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Value;

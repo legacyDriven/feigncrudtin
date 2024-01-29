@@ -1,4 +1,4 @@
-package com.eugeniusz.services.feign;
+package com.eugeniusz.dto.feign;
 
 public record JDoodleAuthTokenResponse(String token) {
 }

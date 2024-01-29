@@ -1,5 +1,7 @@
-package com.eugeniusz.services.feign;
+package com.eugeniusz.httpclients.feign;
 
+import com.eugeniusz.dto.feign.JDoodleRequest;
+import com.eugeniusz.dto.feign.JDoodleResponse;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;

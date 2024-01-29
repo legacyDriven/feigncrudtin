@@ -1,6 +1,6 @@
-package com.eugeniusz.services.feign;
+package com.eugeniusz.dto.feign;
 
-import org.springframework.beans.factory.annotation.Value;
+import com.eugeniusz.httpclients.feign.JDoodleConfig;
 
 public record JDoodleRequest(String clientId, String clientSecret, String script, String language, String versionIndex) {
 

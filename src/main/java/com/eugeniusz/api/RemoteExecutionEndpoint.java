@@ -1,7 +1,7 @@
 package com.eugeniusz.api;
 
 import com.eugeniusz.dto.RemoteCodeExecRequest;
-import com.eugeniusz.services.feign.JDoodleFeignService;
+import com.eugeniusz.services.JDoodleFeignService;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

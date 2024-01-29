@@ -1,6 +1,13 @@
-package com.eugeniusz.services.feign;
+package com.eugeniusz.services;
 
 import com.eugeniusz.dto.RemoteCodeExecRequest;
+import com.eugeniusz.dto.feign.JDoodleAuthTokenRequest;
+import com.eugeniusz.dto.feign.JDoodleAuthTokenResponse;
+import com.eugeniusz.dto.feign.JDoodleRequest;
+import com.eugeniusz.dto.feign.JDoodleResponse;
+import com.eugeniusz.httpclients.feign.JDoodleAuthTokenClient;
+import com.eugeniusz.httpclients.feign.JDoodleClient;
+import com.eugeniusz.httpclients.feign.JDoodleConfig;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.stereotype.Service;
