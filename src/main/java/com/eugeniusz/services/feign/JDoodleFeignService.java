@@ -12,10 +12,13 @@ public class JDoodleFeignService {
 
     JDoodleClient jdoodleClient;
 
+    JDoodleAuthTokenClient jdoodleAuthTokenClient;
+
     JDoodleConfig config;
 
-    public static void main(String[] args) {
-        
+    public String getAuthToken() {
+        JDoodleAuthTokenResponse response = jdoodleAuthTokenClient.getAuthToken(JDoodleAuthTokenRequest.of(config));
+        return response.token();
     }
 
     public String executeCode(RemoteCodeExecRequest incomingRequest) {

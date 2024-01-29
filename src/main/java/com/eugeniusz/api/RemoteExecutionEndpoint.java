@@ -26,4 +26,9 @@ public class RemoteExecutionEndpoint {
     public ResponseEntity<String> executeCode(@RequestBody RemoteCodeExecRequest code){
         return ResponseEntity.ok(jDoodleFeignService.executeCode(code));
     }
+
+    @PostMapping("/tokens")
+    public String authenticate(){
+        return jDoodleFeignService.getAuthToken();
+    }
 }
